@@ -12,7 +12,7 @@ using namespace cv;
 
 int main(void)
 {
-    Getpicture img("./image/Origami1.jpg");
+    Getpicture img("./image/Origami.jpg");
     // “ü—Í‰æ‘œ•\Ž¦ "Origami.jpg"
     Mat raw_image;
     namedWindow("Image", CV_WINDOW_AUTOSIZE | CV_WINDOW_FREERATIO);
@@ -26,11 +26,9 @@ int main(void)
     imshow("Canny", canny_img);
 
     //ƒnƒt•ÏŠ·
-    Mat color_dst;
-    cvtColor(canny_img, color_dst, CV_GRAY2BGR);
-#if 0
+#if 1
     vector<Vec2f> lines;
-    HoughLines(canny_img, lines, 1, CV_PI / 180, 100);
+    HoughLines(canny_img, lines, 1, CV_PI / 180, 154);
 
     for (size_t i = 0; i < lines.size(); i++)
     {
@@ -42,20 +40,20 @@ int main(void)
             cvRound(y0 + 1000 * (a)));
         Point pt2(cvRound(x0 - 1000 * (-b)),
             cvRound(y0 - 1000 * (a)));
-        line(color_dst, pt1, pt2, Scalar(0, 0, 255), 3, 8);
+        line(raw_image, pt1, pt2, Scalar(0, 255, 0), 3, 8);
     }
 #else
     vector<Vec4i> lines;
     HoughLinesP(canny_img, lines, 1, CV_PI / 180, 80, 30, 10);
     for (size_t i = 0; i < lines.size(); i++)
     {
-        line(color_dst, Point(lines[i][0], lines[i][1]),
-            Point(lines[i][2], lines[i][3]), Scalar(0, 0, 255), 3, 8);
+        line(raw_image, Point(lines[i][0], lines[i][1]),
+            Point(lines[i][2], lines[i][3]), Scalar(0, 255, 0), 3, 8);
     }
 #endif
 
     namedWindow("Detected Lines", 1);
-    imshow("Detected Lines", color_dst);
+    imshow("Detected Lines", raw_image);
 
     waitKey(0);
 }
