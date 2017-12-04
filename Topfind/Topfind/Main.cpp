@@ -29,19 +29,49 @@ int main(void)
 #if 1
     vector<Vec2f> lines;
     HoughLines(canny_img, lines, 1, CV_PI / 180, 154);
-
-    for (size_t i = 0; i < lines.size(); i++)
+    
+    size_t i = 0, j = 0;
+    Mat mat_a(2, 2, CV_8UC1), mat_b(2, 1, CV_32FC1), mat_c(2, 1, CV_32FC1), mat_d(2, 1, CV_32FC1);
+    char value_c[256];
+    int x = 0;
+    while (i < lines.size())
     {
-        float rho = lines[i][0];
+        //線を引く部分
         float theta = lines[i][1];
-        double a = cos(theta), b = sin(theta);
-        double x0 = a*rho, y0 = b*rho;
-        Point pt1(cvRound(x0 + 1000 * (-b)),
-            cvRound(y0 + 1000 * (a)));
-        Point pt2(cvRound(x0 - 1000 * (-b)),
-            cvRound(y0 - 1000 * (a)));
+        float rho = lines[i][0];
+        double l = cos(theta), m = sin(theta);
+        double x0 = l*rho, y0 = m*rho;
+        Point pt1(cvRound(x0 + 1000 * (-m)),
+            cvRound(y0 + 1000 * (l)));
+        Point pt2(cvRound(x0 - 1000 * (-m)),
+            cvRound(y0 - 1000 * (l)));
         line(raw_image, pt1, pt2, Scalar(0, 255, 0), 3, 8);
+        j = i + 1;
+        while (j < lines.size())
+        {
+            
+            float a = lines[i][1];
+            float b = lines[j][1];
+            float c = lines[i][0];
+            float d = lines[j][0];
+            mat_a = (cv::Mat_<double>(2, 2) << cos(b), sin(b), cos(a), sin(a));
+            mat_b = (cv::Mat_<double>(2, 1) << -c * cos(a) + d * cos(b), -c * sin(a) + d * sin(b));
+            std::cout << "mat_a=" << mat_a << ":" << i << "," << j << std::endl << std::endl;
+            std::cout << "mat_b=" << mat_b << std::endl << std::endl;
+            mat_c = (1 / (sin(a) * cos(b) - cos(a) * sin(b))) * mat_a * mat_b;
+            mat_b = (cv::Mat_<double>(2, 1) << sin(a), -cos(a));
+            mat_d = (cv::Mat_<double>(2, 1) << c * cos(a), c * sin(a));
+            mat_c = mat_c.at<double>(0, 0) * mat_b + mat_d;
+            Point pt(cvRound(mat_c.at<double>(0, 0)), cvRound(mat_c.at<double>(1, 0)));
+            circle(raw_image, pt, 10, CV_RGB(0, 0, 255), 3);/*画面外ならプロットしないようにする*/
+            sprintf(value_c, "%d", x++);
+            putText(raw_image, value_c, pt , FONT_HERSHEY_TRIPLEX, 1.2, Scalar(0, 255, 0), 1.2, CV_AA);
+            j++;
+            
+        }
+        i++;
     }
+    
 #else
     vector<Vec4i> lines;
     HoughLinesP(canny_img, lines, 1, CV_PI / 180, 80, 30, 10);
