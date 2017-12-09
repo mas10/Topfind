@@ -12,7 +12,7 @@ using namespace cv;
 
 int main(void)
 {
-    Getpicture img("./image/Origami.jpg");
+    Getpicture img("./image/Origami.JPG");
     // 入力画像表示 "Origami.jpg"
     Mat raw_image;
     namedWindow("Image", CV_WINDOW_AUTOSIZE | CV_WINDOW_FREERATIO);
@@ -28,7 +28,7 @@ int main(void)
     //ハフ変換
 #if 1
     vector<Vec2f> lines;
-    HoughLines(canny_img, lines, 1, CV_PI / 180, 154);
+    HoughLines(canny_img, lines, 1, CV_PI / 360, 210);
     
     size_t i = 0, j = 0;
     Mat mat_a(2, 2, CV_8UC1), mat_b(2, 1, CV_32FC1), mat_c(2, 1, CV_32FC1), mat_d(2, 1, CV_32FC1);
@@ -47,6 +47,7 @@ int main(void)
             cvRound(y0 - 1000 * (l)));
         line(raw_image, pt1, pt2, Scalar(0, 255, 0), 3, 8);
         j = i + 1;
+       /*頂点抽出部分*/
         while (j < lines.size())
         {
             
@@ -62,19 +63,23 @@ int main(void)
             mat_b = (cv::Mat_<double>(2, 1) << sin(a), -cos(a));
             mat_d = (cv::Mat_<double>(2, 1) << c * cos(a), c * sin(a));
             mat_c = mat_c.at<double>(0, 0) * mat_b + mat_d;
-            Point pt(cvRound(mat_c.at<double>(0, 0)), cvRound(mat_c.at<double>(1, 0)));
-            circle(raw_image, pt, 10, CV_RGB(0, 0, 255), 3);/*画面外ならプロットしないようにする*/
-            sprintf(value_c, "%d", x++);
-            putText(raw_image, value_c, pt , FONT_HERSHEY_TRIPLEX, 1.2, Scalar(0, 255, 0), 1.2, CV_AA);
+            /*画面外ならプロットしないようにする*/
+            if (cvRound(mat_c.at<double>(0, 0)) < raw_image.cols && cvRound(mat_c.at<double>(1, 0)) < raw_image.rows)
+            {
+                x++;
+                Point pt(cvRound(mat_c.at<double>(0, 0)), cvRound(mat_c.at<double>(1, 0)));
+                circle(raw_image, pt, 10, CV_RGB(0, 0, 255), 3);
+                sprintf(value_c, "%d", x);
+                putText(raw_image, value_c, pt , FONT_HERSHEY_TRIPLEX, 1.2, Scalar(0, 0, 0), 1.2, CV_AA); 
+            }
             j++;
-            
         }
         i++;
     }
     
 #else
     vector<Vec4i> lines;
-    HoughLinesP(canny_img, lines, 1, CV_PI / 180, 80, 30, 10);
+    HoughLinesP(canny_img, lines, 1, CV_PI / 180, 50, 100, 10);
     for (size_t i = 0; i < lines.size(); i++)
     {
         line(raw_image, Point(lines[i][0], lines[i][1]),
