@@ -14,11 +14,23 @@ int main(void)
 {
     Getpicture img("./image/Origami.JPG");
     // 入力画像表示 "Origami.jpg"
-    Mat raw_image;
+    Mat raw_img;
     namedWindow("Image", CV_WINDOW_AUTOSIZE | CV_WINDOW_FREERATIO);
-    resize(img.src_img, raw_image, Size(), 0.25, 0.25);
-    imshow("Image", raw_image);
+    resize(img.src_img, raw_img, Size(), 0.25, 0.25);
+    imshow("Image", raw_img);
 
+#if 1
+    Mat hsv_img;
+    Mat ext_img;
+    //cvtColor(raw_img, hsv_img, CV_BGR2HSV, 3);
+    auto min = Scalar(0, 0, 0);
+    auto max = Scalar(255, 100, 255);
+    inRange(raw_img, min, max, ext_img);
+    Mat mask_img;
+    raw_img.copyTo(mask_img, ext_img);
+    cv::imshow("mask", mask_img);
+
+#else
     //エッジ抽出
     Mat canny_img;
     Canny(raw_image, canny_img, 50, 200);
@@ -26,10 +38,9 @@ int main(void)
     imshow("Canny", canny_img);
 
     //ハフ変換
-#if 1
     vector<Vec2f> lines;
     HoughLines(canny_img, lines, 1, CV_PI / 360, 210);
-    
+
     size_t i = 0, j = 0;
     Mat mat_a(2, 2, CV_8UC1), mat_b(2, 1, CV_32FC1), mat_c(2, 1, CV_32FC1), mat_d(2, 1, CV_32FC1);
     char value_c[256];
@@ -47,10 +58,10 @@ int main(void)
             cvRound(y0 - 1000 * (l)));
         line(raw_image, pt1, pt2, Scalar(0, 255, 0), 3, 8);
         j = i + 1;
-       /*頂点抽出部分*/
+        /*頂点抽出部分*/
         while (j < lines.size())
         {
-            
+
             float a = lines[i][1];
             float b = lines[j][1];
             float c = lines[i][0];
@@ -70,25 +81,17 @@ int main(void)
                 Point pt(cvRound(mat_c.at<double>(0, 0)), cvRound(mat_c.at<double>(1, 0)));
                 circle(raw_image, pt, 10, CV_RGB(0, 0, 255), 3);
                 sprintf(value_c, "%d", x);
-                putText(raw_image, value_c, pt , FONT_HERSHEY_TRIPLEX, 1.2, Scalar(0, 0, 0), 1.2, CV_AA); 
+                putText(raw_image, value_c, pt, FONT_HERSHEY_TRIPLEX, 1.2, Scalar(0, 0, 0), 1.2, CV_AA);
             }
             j++;
         }
         i++;
     }
-    
-#else
-    vector<Vec4i> lines;
-    HoughLinesP(canny_img, lines, 1, CV_PI / 180, 50, 100, 10);
-    for (size_t i = 0; i < lines.size(); i++)
-    {
-        line(raw_image, Point(lines[i][0], lines[i][1]),
-            Point(lines[i][2], lines[i][3]), Scalar(0, 255, 0), 3, 8);
-    }
+
 #endif
 
     namedWindow("Detected Lines", 1);
-    imshow("Detected Lines", raw_image);
+    imshow("Detected Lines", ext_img);
 
     waitKey(0);
 }
