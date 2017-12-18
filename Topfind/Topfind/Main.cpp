@@ -13,7 +13,7 @@ using namespace cv;     //一部cv::が付いてるのは曖昧回避
 int main(void)
 {
     Getpicture img("./image/Origami2.JPG");
-    // 入力画像表示 "Origami.jpg"
+    // 入力画像表示 "Origami.jpg"　Sankaku
     Mat raw_img;
     //namedWindow("Image", CV_WINDOW_AUTOSIZE | CV_WINDOW_FREERATIO);
     resize(img.src_img, raw_img, Size(), 0.25, 0.25);
