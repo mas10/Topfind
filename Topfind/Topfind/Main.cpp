@@ -1,9 +1,11 @@
 #include "Getpicture.h"
+#include "ColorExt.h"
+#include "Topfind.h"
+
 #include "direct.h"
 #include "math.h"
 #include <opencv2/opencv.hpp>           //いらない
 #include <opencv2/imgcodecs.hpp>        //いらない
-#include <opencv2/highgui/highgui.hpp>  //いらない
 #include <iostream>
 #include <opencv2/core/core.hpp>
 
@@ -15,44 +17,21 @@ int main(void)
     Getpicture img("./image/Origami2.JPG");
     // 入力画像表示 "Origami.jpg"　Sankaku
     Mat raw_img;
-    //namedWindow("Image", CV_WINDOW_AUTOSIZE | CV_WINDOW_FREERATIO);
     resize(img.src_img, raw_img, Size(), 0.25, 0.25);
     cv::imshow("Image", raw_img);
 
 #if 1
     //色抽出
-    Mat hsv_img;
-    Mat ext_img;
-    cv::cvtColor(raw_img, hsv_img, CV_BGR2HSV, 3);
-    cv::GaussianBlur(hsv_img, hsv_img, Size(9, 7), 3.05, 2.45);
     auto min = Scalar(0, 0, 0);
-    auto max = Scalar(255, 90, 255);//BGR 青:200, 120, 100 赤:255, 90, 255
-    cv::inRange(raw_img, min, max, ext_img);
-    //cv::bitwise_not(ext_img, ext_img);
+    auto max = Scalar(255, 110, 255);//BGR 青:200, 120, 100 赤:255, 90, 255 |HSV 赤:255, 110, 255
+    ColorExt ext(raw_img, min, max, 1);//引数4が0以外ならHSVで処理
+    cv::imshow("Extracted", ext.eimg);
+    //抽出結果をマスク表示
     Mat mask_img;
-    //Mat canny_img;
-    //cv::Canny(raw_img, canny_img, 50, 200);
-    //cv::imshow("Canny", canny_img);
-    //エッジ抽出
-    vector<vector<Point>> contours;
-    vector<Point> approx;
-    cv::findContours(ext_img, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
-    cv::imshow("Extracted", ext_img);
-    raw_img.copyTo(mask_img, ext_img);
+    raw_img.copyTo(mask_img, ext.eimg);
     cv::imshow("Masked", mask_img);
-    cv::drawContours(raw_img, contours, -1, CV_RGB(0, 0, 255), 3, 8);
-    for (int i = 0; i < contours.size(); i++) {
-        approxPolyDP(Mat(contours[i]), approx, 0.01 * arcLength(contours[i], true), true);
-    }
     //頂点抽出
-    char value_c[256];
-    for (int i = 0; i < approx.size(); i++) {
-        if (approx[i].x >= raw_img.cols-1 || approx[i].y >= raw_img.rows-1) continue;
-        Point pt(approx[i].x, approx[i].y);
-        circle(raw_img, pt, 10, CV_RGB(255, 0, 0), 3);
-        sprintf(value_c, "%d", i + 1);
-        putText(raw_img, value_c, pt, FONT_HERSHEY_TRIPLEX, 1.2, CV_RGB(0, 0, 0), 1.2, CV_AA);
-    }
+    Topfind top(ext.eimg, raw_img);
     cv::imshow("Topfind", raw_img);
 #else
     //エッジ抽出

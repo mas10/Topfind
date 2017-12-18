@@ -115,14 +115,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ColorExt.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="Getpicture.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Topfind.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ColorExt.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="Getpicture.h" />
     <ClInclude Include="Libs.h" />
+    <ClInclude Include="Topfind.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

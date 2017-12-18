@@ -1,6 +1,5 @@
 #include "Errors.h"
 
-
 using namespace std;
 using namespace cv;
 
