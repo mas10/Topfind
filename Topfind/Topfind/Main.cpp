@@ -14,7 +14,7 @@ using namespace cv;     //一部cv::が付いてるのは曖昧回避
 
 int main(void)
 {
-    Getpicture img("./image/Origami2.JPG");
+    Getpicture img("./image/Origami5.JPG");
     // 入力画像表示 "Origami.jpg"　Sankaku
     Mat raw_img;
     resize(img.src_img, raw_img, Size(), 0.25, 0.25);
@@ -23,7 +23,7 @@ int main(void)
 #if 1
     //色抽出
     auto min = Scalar(0, 0, 0);
-    auto max = Scalar(255, 110, 255);//BGR 青:200, 120, 100 赤:255, 90, 255 |HSV 赤:255, 110, 255
+    auto max = Scalar(164, 72, 255);//BGR 青:200, 120, 100 赤:255, 90, 255 |HSV 赤:255, 110, 255 | 4:255, 70, 255 | 5:255,72,255
     ColorExt ext(raw_img, min, max, 1);//引数4が0以外ならHSVで処理
     cv::imshow("Extracted", ext.eimg);
     //抽出結果をマスク表示
